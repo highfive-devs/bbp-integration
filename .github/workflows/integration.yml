@@ -1,0 +1,49 @@
+name: HighFive_Integration_tests
+
+on:
+  push:
+    branches:
+      - ci_test
+  schedule:
+    - cron: '5 3 * * *'
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+  INSTALL_DIR: ${{github.workspace}}/install
+
+jobs:
+
+  MorphIO:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Install libraries"
+      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev
+
+    - name: Build HighFive
+      working-directory: ${{github.workspace}}/build
+      run: |
+        git clone https://github.com/BlueBrain/HighFive.git --recursive
+        cd HighFive
+        mkdir build && cd build
+        CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
+          -DHIGHFIVE_UNIT_TESTS:BOOL=False \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+          -DHIGHFIVE_USE_EIGEN:BOOL=TRUE)
+        [ "$CC" ] && $CC --version
+        cmake --version
+        set -x
+        cmake .. "${CMAKE_OPTIONS[@]}"
+        make install
+    - name: Build and Test MorphIO
+      working-directory: ${{github.workspace}}/build
+      run: |
+        git clone https://github.com/BlueBrain/MorphIO.git --recursive
+        cd MorphIO
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DEXTERNAL_HIGHFIVE=True
+        cmake --build . --config $BUILD_TYPE --parallel 2 --verbose
+        ctest
