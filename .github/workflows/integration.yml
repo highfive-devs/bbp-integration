@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: "Install libraries"
-      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev libfmt-dev catch2-dev spdlog-dev
+      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev
 
     - name: Build HighFive
       run: |
@@ -30,7 +30,7 @@ jobs:
           -DHIGHFIVE_UNIT_TESTS:BOOL=False \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
-          -DHIGHFIVE_USE_EIGEN:BOOL=TRUE)
+          -DHIGHFIVE_USE_EIGEN:BOOL=True)
         source $GITHUB_WORKSPACE/ci/build.sh
     - name: Build and Test MorphIO
       run: |
@@ -38,15 +38,19 @@ jobs:
         cd MorphIO
         CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
-          -DEXTERNAL_HIGHFIVE=True)
+          -DEXTERNAL_HIGHFIVE:BOOL=True)
         source $GITHUB_WORKSPACE/ci/build.sh
         ctest
     - name: Build and Test libsonata
       run: |
         git clone https://github.com/BlueBrain/libsonata.git --recursive
         cd libsonata
+        cd extlib/HighFive
+        git fetch && git checkout origin/master
+        cd ../..
         CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR)
+          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+          -DEXTLIB_FROM_SUBMODULES:BOOL=True)
         source $GITHUB_WORKSPACE/ci/build.sh
         ctest
     - name: live debug session on failure
