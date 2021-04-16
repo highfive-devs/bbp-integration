@@ -6,6 +6,7 @@ on:
       - ci_test
   schedule:
     - cron: '5 3 * * *'
+  repository_dispatch:
 
 env:
   BUILD_TYPE: RelWithDebInfo
