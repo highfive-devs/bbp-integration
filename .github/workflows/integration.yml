@@ -13,7 +13,7 @@ env:
 
 jobs:
 
-  MorphIO:
+  Integration:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,13 +35,22 @@ jobs:
         [ "$CC" ] && $CC --version
         set -x
         cmake .. "${CMAKE_OPTIONS[@]}"
-        make install
+        cmake --build . --config $BUILD_TYPE --parallel 2 --verbose
+        cmake --install .
     - name: Build and Test MorphIO
       run: |
         git clone https://github.com/BlueBrain/MorphIO.git --recursive
         cd MorphIO
         mkdir build && cd build
         cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DEXTERNAL_HIGHFIVE=True
+        cmake --build . --config $BUILD_TYPE --parallel 2 --verbose
+        ctest
+    - name: Build and Test libsonata
+      run: |
+        git clone https://github.com/BlueBrain/libsonata.git --recursive
+        cd libsonata
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR
         cmake --build . --config $BUILD_TYPE --parallel 2 --verbose
         ctest
     - name: live debug session on failure
