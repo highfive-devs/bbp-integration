@@ -1,0 +1,59 @@
+name: HighFive_Integration_tests
+
+on:
+  push:
+    branches:
+      - ci_test
+  schedule:
+    - cron: '5 3 * * *'
+  repository_dispatch:
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+  INSTALL_DIR: ${{github.workspace}}/install
+
+jobs:
+
+  Integration:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Install libraries"
+      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev
+
+    - name: Build HighFive
+      run: |
+        git clone https://github.com/BlueBrain/HighFive.git --recursive
+        cd HighFive
+        CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
+          -DHIGHFIVE_UNIT_TESTS:BOOL=False \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+          -DHIGHFIVE_USE_EIGEN:BOOL=True)
+        source $GITHUB_WORKSPACE/ci/build.sh
+    - name: Build and Test MorphIO
+      run: |
+        git clone https://github.com/BlueBrain/MorphIO.git --recursive
+        cd MorphIO
+        CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+          -DEXTERNAL_HIGHFIVE:BOOL=True)
+        source $GITHUB_WORKSPACE/ci/build.sh
+        ctest
+    - name: Build and Test libsonata
+      run: |
+        git clone https://github.com/BlueBrain/libsonata.git --recursive
+        cd libsonata
+        cd extlib/HighFive
+        git fetch && git checkout origin/master
+        cd ../..
+        CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+          -DEXTLIB_FROM_SUBMODULES:BOOL=True)
+        source $GITHUB_WORKSPACE/ci/build.sh
+        ctest
+    - name: live debug session on failure
+      if: failure() && contains(github.event.head_commit.message, 'live-debug-ci')
+      uses: mxschmitt/action-tmate@v3
