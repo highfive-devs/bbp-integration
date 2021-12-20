@@ -7,3 +7,9 @@ Tests are triggered nightly and whenever a PR is merged on HighFive. The tests e
 functional regression is introduced into HighFive that would break downstream BlueBrain projects
 without directly impacting HighFive development. If an issue is detected we can go back and address
 it in HighFive.
+
+# Funding & Acknowledgment
+ 
+The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
+ 
+Copyright © 2021 Blue Brain Project/EPFL
