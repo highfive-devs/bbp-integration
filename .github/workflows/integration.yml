@@ -2,11 +2,13 @@ name: HighFive_Integration_tests
 
 on:
   push:
-    branches:
+    branches: 
       - ci_test
   schedule:
     - cron: '5 3 * * *'
   repository_dispatch:
+    types: [merge] # event_type set in HighFive integration_trigger.yml
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: RelWithDebInfo
