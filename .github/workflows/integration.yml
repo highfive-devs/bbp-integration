@@ -9,6 +9,14 @@ on:
   repository_dispatch:
     types: [merge] # event_type set in HighFive integration_trigger.yml
   workflow_dispatch:
+    inputs:
+      highfive_branch:
+        description: "HighFive branch to test against"
+        required: false
+        default: "master"
+        type: string
+        
+        
 
 env:
   BUILD_TYPE: RelWithDebInfo
@@ -27,7 +35,8 @@ jobs:
 
     - name: Build HighFive
       run: |
-        git clone https://github.com/BlueBrain/HighFive.git --recursive
+        git clone https://github.com/BlueBrain/HighFive.git \
+          --branch ${{ github.event.inputs.highfive_branch }} --recursive
         cd HighFive
         CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
           -DHIGHFIVE_UNIT_TESTS:BOOL=False \
