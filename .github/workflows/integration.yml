@@ -45,6 +45,7 @@ jobs:
         source $GITHUB_WORKSPACE/ci/build.sh
         ctest
     - name: Build and Test libsonata
+      if: success() || failure()
       run: |
         git clone https://github.com/BlueBrain/libsonata.git --recursive
         cd libsonata
