@@ -35,8 +35,9 @@ jobs:
 
     - name: Build HighFive
       run: |
+        BRANCH=${{ github.event.inputs.highfive_branch }}
         git clone https://github.com/BlueBrain/HighFive.git \
-          --branch ${{ github.event.inputs.highfive_branch }} --recursive
+          --branch ${BRANCH:-"master"} --recursive
         cd HighFive
         CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
           -DHIGHFIVE_UNIT_TESTS:BOOL=False \
