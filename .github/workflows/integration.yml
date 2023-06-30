@@ -15,8 +15,12 @@ on:
         required: false
         default: "master"
         type: string
-        
-        
+
+      libsonata_branch:
+        description: "Libsonata branch to test"
+        required: false
+        default: "master"
+        type: string
 
 env:
   BUILD_TYPE: RelWithDebInfo
@@ -35,9 +39,8 @@ jobs:
 
     - name: Build HighFive
       run: |
-        BRANCH=${{ github.event.inputs.highfive_branch }}
         git clone https://github.com/BlueBrain/HighFive.git \
-          --branch ${BRANCH:-"master"} --recursive
+          --branch ${{ github.event.inputs.highfive_branch }} --recursive
         cd HighFive
         CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
           -DHIGHFIVE_UNIT_TESTS:BOOL=False \
@@ -45,6 +48,7 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
           -DHIGHFIVE_USE_EIGEN:BOOL=True)
         source $GITHUB_WORKSPACE/ci/build.sh
+
     - name: Build and Test MorphIO
       run: |
         git clone https://github.com/BlueBrain/MorphIO.git --recursive
@@ -54,21 +58,23 @@ jobs:
           -DEXTERNAL_HIGHFIVE:BOOL=True)
         source $GITHUB_WORKSPACE/ci/build.sh
         cd build && ctest --output-on-failure
+
     - name: Build and Test libsonata
       if: success() || failure()
       run: |
-        git clone https://github.com/BlueBrain/libsonata.git --recursive
+        git clone https://github.com/BlueBrain/libsonata.git \
+          --branch ${{ github.event.inputs.libsonata_branch }} --recursive
         cd libsonata
 
-        cd extlib/HighFive
-        BRANCH=${{ github.event.inputs.highfive_branch }}
-        git fetch && git checkout origin/${BRANCH:-"master"}
-        cd ../..
+        pushd extlib/HighFive
+        git fetch && git checkout origin/${{ github.event.inputs.highfive_branch }}
+        popd
         CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
           -DEXTLIB_FROM_SUBMODULES:BOOL=True)
         source $GITHUB_WORKSPACE/ci/build.sh
         cd build && ctest --output-on-failure
+
     - name: live debug session on failure
       if: failure() && contains(github.event.head_commit.message, 'live-debug-ci')
       uses: mxschmitt/action-tmate@v3
