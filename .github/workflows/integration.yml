@@ -31,6 +31,10 @@ jobs:
   Integration:
     runs-on: ubuntu-latest
 
+    env:
+      HIGHFIVE_BRANCH: ${{ github.event.inputs.highfive_branch }}
+      LIBSONATA_BRANCH: ${{ github.event.inputs.libsonata_branch }}
+
     steps:
     - uses: actions/checkout@v2
 
@@ -39,9 +43,12 @@ jobs:
 
     - name: Build HighFive
       run: |
+        HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"master"}
+
         git clone https://github.com/BlueBrain/HighFive.git \
-          --branch ${{ github.event.inputs.highfive_branch }} --recursive
+          --branch ${HIGHFIVE_BRANCH} --recursive
         cd HighFive
+
         CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
           -DHIGHFIVE_UNIT_TESTS:BOOL=False \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
@@ -53,6 +60,7 @@ jobs:
       run: |
         git clone https://github.com/BlueBrain/MorphIO.git --recursive
         cd MorphIO
+
         CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
           -DEXTERNAL_HIGHFIVE:BOOL=True)
@@ -62,13 +70,17 @@ jobs:
     - name: Build and Test libsonata
       if: success() || failure()
       run: |
+        HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"master"}
+        LIBSONATA_BRANCH=${LIBSONATA_BRANCH:-"master"}
+
         git clone https://github.com/BlueBrain/libsonata.git \
-          --branch ${{ github.event.inputs.libsonata_branch }} --recursive
+          --branch ${LIBSONATA_BRANCH} --recursive
         cd libsonata
 
         pushd extlib/HighFive
-        git fetch && git checkout origin/${{ github.event.inputs.highfive_branch }}
+        git fetch && git checkout origin/${HIGHFIVE_BRANCH}
         popd
+
         CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
           -DEXTLIB_FROM_SUBMODULES:BOOL=True)
