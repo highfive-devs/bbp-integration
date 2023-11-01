@@ -9,6 +9,10 @@ BlueBrain, i.e. MorphIO and libsonata, projects without directly impacting
 HighFive development. If an issue is detected we can go back and address it in
 HighFive.
 
+# Reactivating
+CI will be turned off if it's unused. The way to turn it back on is to go to
+Actions and click on the banner.
+
 # Funding & Acknowledgment
  
 The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
