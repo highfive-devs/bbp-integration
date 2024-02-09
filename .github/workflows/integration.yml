@@ -2,8 +2,11 @@ name: HighFive_Integration_tests
 
 on:
   push:
-    branches: 
+    branches:
       - ci_test
+  pull_request:
+    branches:
+      - main
   schedule:
     - cron: '5 3 * * *'
   repository_dispatch:
