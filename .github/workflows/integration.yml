@@ -16,7 +16,7 @@ on:
       highfive_branch:
         description: "HighFive branch to test against"
         required: false
-        default: "master"
+        default: "v2.x"
         type: string
 
       libsonata_branch:
@@ -46,7 +46,7 @@ jobs:
 
     - name: Build HighFive
       run: |
-        HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"master"}
+        HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"v2.x"}
 
         git clone https://github.com/BlueBrain/HighFive.git \
           --branch ${HIGHFIVE_BRANCH} --recursive
@@ -73,7 +73,7 @@ jobs:
     - name: Build and Test libsonata
       if: success() || failure()
       run: |
-        HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"master"}
+        HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"v2.x"}
         LIBSONATA_BRANCH=${LIBSONATA_BRANCH:-"master"}
 
         git clone https://github.com/BlueBrain/libsonata.git \
