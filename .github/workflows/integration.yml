@@ -52,7 +52,7 @@ jobs:
         HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"v2.x"}
 
         git clone ${HIGHFIVE_GIT} --branch ${HIGHFIVE_BRANCH} --recursive
-        cd HighFive
+        cd highfive
 
         CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
           -DHIGHFIVE_UNIT_TESTS:BOOL=False \
