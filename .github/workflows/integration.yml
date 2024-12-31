@@ -28,6 +28,9 @@ on:
 env:
   BUILD_TYPE: RelWithDebInfo
   INSTALL_DIR: ${{github.workspace}}/install
+  HIGHFIVE_GIT: "https://github.com/highfive-devs/highfive.git"
+  MORPHIO_GIT: "https://github.com/BlueBrain/MorphIO.git"
+  LIBSONATA_GIT: "https://github.com/BlueBrain/libsonata.git"
 
 jobs:
 
@@ -48,8 +51,7 @@ jobs:
       run: |
         HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"v2.x"}
 
-        git clone https://github.com/BlueBrain/HighFive.git \
-          --branch ${HIGHFIVE_BRANCH} --recursive
+        git clone ${HIGHFIVE_GIT} --branch ${HIGHFIVE_BRANCH} --recursive
         cd HighFive
 
         CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False \
@@ -61,7 +63,7 @@ jobs:
 
     - name: Build and Test MorphIO
       run: |
-        git clone https://github.com/BlueBrain/MorphIO.git --recursive
+        git clone ${MORPHIO_GIT} --recursive
         cd MorphIO
 
         CMAKE_OPTIONS=(-DCMAKE_BUILD_TYPE=$BUILD_TYPE \
@@ -77,8 +79,7 @@ jobs:
         HIGHFIVE_BRANCH=${HIGHFIVE_BRANCH:-"v2.x"}
         LIBSONATA_BRANCH=${LIBSONATA_BRANCH:-"master"}
 
-        git clone https://github.com/BlueBrain/libsonata.git \
-          --branch ${LIBSONATA_BRANCH} --recursive
+        git clone ${LIBSONATA_GIT} --branch ${LIBSONATA_BRANCH} --recursive
         cd libsonata
 
         pushd extlib/HighFive
